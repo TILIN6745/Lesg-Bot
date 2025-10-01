@@ -23,30 +23,30 @@ global.prems = []
 
 global.libreria = "Baileys Multi Device"
 global.vs = "^1.3.2"
-global.nameqr = "Michi"
+global.nameqr = "Legs"
 global.sessions = "Sessions/Principal"
 global.jadi = "Sessions/SubBot"
 global.MichiJadibts = true
 global.enableRcanal = true
 
-global.botname = "𝖬𝗂𝖼𝗁𝗂 - 𝖡𝗈𝗍𝖶𝖺"
-global.textbot = "ᴍɪᴄʜɪ ᴠ3, 𝗔𝗱𝗼"
-global.dev = "✎ ⍴᥆ᥕᥱrᥱძ ᑲᥡ 𝗔𝗱𝗼"
-global.author = "© mᥲძᥱ ᥕі𝗍һ 𝖠𝖽𝗈"
-global.etiqueta = "𝖠𝖽𝗈 | 𝟤𝟢𝟤𝟧 ©"
-global.currency = "¢ Pesos"
-global.michipg = "https://files.catbox.moe/p2eq60.jpg"
-global.icono = "https://files.catbox.moe/dnjyto.jpg"
+global.botname = "𝐋𝐄𝐆𝐒 - 𝐁𝐎𝐓"
+global.textbot = "𝐋𝐄𝐆𝐒 ᴠ3, 𝗔𝗟𝗘𝗫"
+global.dev = "✎𝗕𝘆 𝗔𝗟𝗘𝗫𝗜𝗦"
+global.author = "𝗛𝗘𝗖𝗛𝗢 𝗣𝗢𝗥 𝗧𝗜𝗟𝗜𝗡"
+global.etiqueta = "𝗔𝗟𝗘𝗫𝗜𝗦 | 𝟤𝟢𝟤𝟧 ©"
+global.currency = "¢ 𝗟𝗘𝗚𝗦"
+global.michipg = "https://files.catbox.moe/stx0s4.jpg"
+global.icono = "https://files.catbox.moe/stx0s4.jpg"
 global.catalogo = fs.readFileSync('./lib/catalogo.jpg')
 
 
-global.group = "https://chat.whatsapp.com/D80dadzwRq4LQqFGUntZfK?mode=ems_copy_t"
+global.group = "https://chat.whatsapp.com/BHaeKGeSzn4ILtpIkeKh2c"
 global.community = ""
-global.channel = "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O"
+global.channel = "https://whatsapp.com/channel/0029VauK3kA4SpkPQyez1z00"
 global.github = "https://github.com"
 global.gmail = "minexdt@gmail.com"
 global.ch = {
-ch1: "120363420941524030@newsletter"
+ch1: "120363357544459855@newsletter"
 }
 
 
