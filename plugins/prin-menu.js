@@ -1,87 +1,316 @@
-import moment from "moment-timezone"
-import fs from "fs"
-import path from "path"
+import os from 'os'
 
-let handler = async (m, { conn, usedPrefix }) => {
-  try {
-    let menu = {}
-    for (let plugin of Object.values(global.plugins)) {
-      if (!plugin || !plugin.help) continue
-      let taglist = plugin.tags || []
-      for (let tag of taglist) {
-        if (!menu[tag]) menu[tag] = []
-        menu[tag].push(plugin)
+let handler = async (m, { conn }) => {
+  // Tiempo activo del bot
+  let uptime = process.uptime() * 1000
+  let segundos = Math.floor(uptime / 1000) % 60
+  let minutos = Math.floor(uptime / (1000 * 60)) % 60
+  let horas = Math.floor(uptime / (1000 * 60 * 60)) % 24
+  let dias = Math.floor(uptime / (1000 * 60 * 60 * 24))
+  let tiempoActivo = `${dias}d ${horas}h ${minutos}m ${segundos}s`
+
+  // País (bandera personalizada por usuario)
+  let flag = global.db.data.users[m.sender]?.flag || "🇲🇽"
+
+  // Usuarios registrados
+  let totalUsuarios = Object.keys(global.db.data.users).length
+
+  // Fecha actual
+  let fecha = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  // Nombre del usuario
+  let userName = conn.getName(m.sender)
+
+  // Contacto estilo tarjeta
+  global.fkontak = {
+    key: {
+      participant: '0@s.whatsapp.net',
+      remoteJid: 'status@broadcast'
+    },
+    message: {
+      contactMessage: {
+        displayName: `𝐋𝐄𝐆𝐒 𝐁𝐎𝐓 𝐕3`,
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;SAIKI BOT;;;\nFN:SAIKI BOT\nitem1.TEL;waid=1234567890:1234567890\nitem1.X-ABLabel:Bot\nEND:VCARD`
       }
     }
-
-    let uptimeSec = process.uptime()
-    let hours = Math.floor(uptimeSec / 3600)
-    let minutes = Math.floor((uptimeSec % 3600) / 60)
-    let seconds = Math.floor(uptimeSec % 60)
-    let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
-
-    let botNameToShow = global.botname || ""
-    let bannerUrl = global.michipg || ""
-    let videoUrl = null
-
-    const senderBotNumber = conn.user.jid.split('@')[0]
-    const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
-    if (fs.existsSync(configPath)) {
-      try {
-        const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-        if (subBotConfig.name) botNameToShow = subBotConfig.name
-        if (subBotConfig.banner) bannerUrl = subBotConfig.banner
-        if (subBotConfig.video) videoUrl = subBotConfig.video
-      } catch (e) { console.error(e) }
-    }
-
-    let rolBot = conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot 🅑'
-
-    
-    let txt = `「⊹」𝗛𝗼𝗹𝗮! 𝗦𝗼𝘆 *${botNameToShow}* (${rolBot})
-
-> ✐ Hora: ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}
-> ꕤ Fecha: ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}
-> ❏ Actividad: ${uptimeStr}
-> ✩ Canal: https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
-
-━━━━━━━━━━━━━━\n`
-
-    for (let tag in menu) {
-      txt += `「✎」 *${tag.toUpperCase()}*\n\n`
-      for (let plugin of menu[tag]) {
-        for (let cmd of plugin.help) {
-          txt += `> ❐ *${usedPrefix + cmd}*\n`
-        }
-      }
-      txt += `━━━━━━━━━━━━━━\n\n`
-    }
-
-    if (videoUrl) {
-      await conn.sendMessage(
-        m.chat,
-        { video: { url: videoUrl }, caption: txt, gifPlayback: false },
-        { quoted: m }
-      )
-    } else if (bannerUrl) {
-      await conn.sendMessage(
-        m.chat,
-        { image: { url: bannerUrl }, caption: txt },
-        { quoted: m }
-      )
-    } else {
-      await conn.sendMessage(
-        m.chat,
-        { image: { url: global.michipg }, caption: txt },
-        { quoted: m }
-      )
-    }
-
-  } catch (e) {
-    console.error(e)
-    conn.reply(m.chat, "» Ocurrió un error.", m)
   }
+
+  // Imagen del menú (puedes cambiar el link por el que quieras)
+  let img = 'https://files.catbox.moe/stx0s4.jpg'
+
+  let menu = `
+𝐇𝐎𝐋𝐀 ${userName} 🔥
+𝐌𝐄 𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐎 𝐒𝐎𝐘
+𝐋𝐄𝐆𝐒 𝐁𝐎𝐓 𝐕3 𝐁𝐘 𝐀𝐋𝐄𝐗𝐈𝐒
+
+╭┈┈┈┈┈⊰
+┊ ⛓️‍💥 𝙰𝙲𝚃𝙸𝚅𝙰: ${tiempoActivo}
+┊ ⛓️‍💥 𝙿𝙰𝙸𝚂: ${flag}
+┊ ⛓️‍💥 𝙵𝙴𝙲𝙷𝙰: ${fecha}
+┊ ⛓️‍💥 𝚄𝚂𝚄𝙰𝚁𝙸𝙾𝚂: ${totalUsuarios}
+┊ ⛓️‍💥 𝙼𝙾𝙳𝙾: 𝙿𝚁𝙸𝚅𝙰𝙳𝙾
+╰┈┈┈┈┈┈┈┈┈⊰
+
+
+L I S T A  -  M E N Ú
+
+╭┈┈⊰  🌯 Ａ D M I N S 🌯
+┊🤖 .groupdesc
+┊🤖 .groupimg
+┊🤖 .groupname
+┊🤖 .admins texto
+┊🤖 .bienvenidos
+┊🤖 .creargrupo + nombre
+┊🤖 .listonline
+┊🤖 .darpija
+┊🤖 .sorteo
+┊🤖 .boletos
+┊🤖 .seguidores 
+┊🤖 .libros
+┊🤖 .metodo
+┊🤖 .pago
+┊🤖 .peliculas
+┊🤖 .combos
+┊🤖 .setcombos txt
+┊🤖 .setpago txt
+┊🤖 .setpeliculas txt
+┊🤖 .setstock txt
+┊🤖 .setseguidores txt
+┊🤖 .stock
+┊🤖 .enable option
+┊🤖 .disable option
+┊🤖 .donarsala
+┊🤖 .banearbot
+┊🤖 .group open / close
+┊🤖 .grupo abrir / cerrar
+┊🤖 .del
+┊🤖 .fantasmas
+┊🤖 .infogrupo
+┊🤖 .guía
+┊🤖 .invitar + numero
+┊🤖 .kick @user
+┊🤖 .link
+┊🤖 .mute
+┊🤖 .unmute
+┊🤖 .daradmin @usuario
+┊🤖 .reglas
+┊🤖 .setreglas + Texto
+┊🤖 .emotag + emoji
+┊🤖 .setwelcome @user + texto
+┊🤖 .desbanearbot
+┊🤖 .quitaradmin @usuario
+┊🤖 .setbye @user + texto
+┊🤖 .notify
+┊🤖 .kickall
+┊🤖 .todos
+┊🤖 .horario
+┊🤖 .linea
+┊🤖 .manual
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🍮 ＣＲＥＡＤＯＲ 🍮
+┊🤖 .listadegrupo
+┊🤖 .grouplist
+┊🤖 .enable option
+┊🤖 .disable option
+┊🤖 .runtime
+┊🤖 .totalfunciones
+┊🤖 .ping
+┊🤖 .ban @user
+┊🤖 .ds
+┊🤖 .join link
+┊🤖 .reportar
+┊🤖 .reiniciar
+┊🤖 .salir
+┊🤖 .unban @user
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🎧 ＭＵＳＩＣＡ 🎧
+┊🤖 .play texto
+┊🤖 .play2 texto
+┊🤖 .play3 texto
+┊🤖 .soundcloud texto
+┊🤖 .spoti
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🥞 ＬＯＧＯＳ 🥞
+┊🤖 .logocorazon
+┊🤖 .logochristmas
+┊🤖 .logopareja
+┊🤖 .logoglitch
+┊🤖 .logosad
+┊🤖 .logogaming
+┊🤖 .logosolitario
+┊🤖 .logodragonball
+┊🤖 .logoneon
+┊🤖 .logogatito
+┊🤖 .logochicagamer
+┊🤖 .logonaruto
+┊🤖 .logofuturista
+┊🤖 .logonube
+┊🤖 .logoangel
+┊🤖 .logomurcielago
+┊🤖 .logocielo
+┊🤖 .logograffiti3d
+┊🤖 .logomatrix
+┊🤖 .logohorror
+┊🤖 .logoalas
+┊🤖 .logoarmy
+┊🤖 .logopubg
+┊🤖 .logopubgfem
+┊🤖 .logolol
+┊🤖 .logoamongus
+┊🤖 .logovideopubg
+┊🤖 .logovideotiger
+┊🤖 .logovideointro
+┊🤖 .logovideogaming
+┊🤖 .logoguerrero
+┊🤖 .logoportadaplayer
+┊🤖 .logoportadaff
+┊🤖 .logoportadapubg
+┊🤖 .logoportadacounter
+┊🤖 .sadcat texto
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🍙 ＤＩＶＥＲＳＩＯＮ 🍙
+┊🤖 .meme
+┊🤖 .abrazar @usuario
+┊🤖 .acariciar @tag
+┊🤖 .acertijo
+┊🤖 .advpeli
+┊🤖 .gay @tag | nombre
+┊🤖 .lesbiana @tag | nombre
+┊🤖 .pajero @tag | nombre
+┊🤖 .peruano @tag | nombre
+┊🤖 .peruana @tag | nombre
+┊🤖 .pajera @tag | nombre
+┊🤖 .puto @tag | nombre
+┊🤖 .puta @tag | nombre
+┊🤖 .manco @tag | nombre
+┊🤖 .manca @tag | nombre
+┊🤖 .rata @tag | nombre
+┊🤖 .prostituta @tag | nombre
+┊🤖 .prostituto @tag | nombre
+┊🤖 .consejo
+┊🤖 .dance @user
+┊🤖 .doxear @tag
+┊🤖 .follar
+┊🤖 .formarpareja
+┊🤖 .gay2
+┊🤖 .horny
+┊🤖 .iqtest
+┊🤖 .besar @tag
+┊🤖 .love @user
+┊🤖 .enamorada @tag
+┊🤖 .meme
+┊🤖 .lov2 @tag | nombre
+┊🤖 .cachuda @tag | nombre
+┊🤖 .negra @tag | nombre
+┊🤖 .adoptado @tag | nombre
+┊🤖 .sintetas @tag | nombre
+┊🤖 .sinpoto @tag | nombre
+┊🤖 .sinpito @tag | nombre
+┊🤖 .feo @tag | nombre
+┊🤖 .cachudo @tag | nombre
+┊🤖 .fea @tag | nombre
+┊🤖 .negro @tag | nombre
+┊🤖 .adoptada @tag | nombre
+┊🤖 .personalidad nombre
+┊🤖 .ppt
+┊🤖 .pregunta
+┊🤖 .pucheros @tag
+┊🤖 .reirse @tag
+┊🤖 .reto
+┊🤖 .triste @tag
+┊🤖 .ship
+┊🤖 .sonrojarse @tag
+┊🤖 .top texto
+┊🤖 .turno
+┊🤖 .violar
+┊🤖 .zodiac AAAA MM DD
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🔫 ＦＲＥＥ ＦＩＲＥ 🔫
+┊🤖 .ffstalk id del jugador
+┊🤖 .tiktokstalk usuario
+┊🤖 .12vs12
+┊🤖 .16vs16
+┊🤖 .20vs20
+┊🤖 .24vs24
+┊🤖 .6vs6
+┊🤖 .8vs8
+┊🤖 .interna
+┊🤖 .guerra
+┊🤖 .reglaslideres
+┊🤖 .reglaslideres2
+┊🤖 .scrim
+┊🤖 .4vs4 Reg|Hr|Bnd|Mod
+┊🤖 .alpes
+┊🤖 .bermuda
+┊🤖 .kalahari
+┊🤖 .nexterra
+┊🤖 .purgatorio
+┊🤖 .cuadrilatero
+┊🤖 .hexagonal
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🍄 ＳＴＩＣＫＥＲＳ 🍄
+┊🤖 .img reply
+┊🤖 .quotly texto
+┊🤖 .scat
+┊🤖 .smeme texto
+┊🤖 .sticker
+┊🤖 .wm nombre|autor
+┊🤖 .fake texto/@tag/texto
+┊🤖 .hd
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🔞 ＮＳＦＷ 🔞
+┊🤖 .booty
+┊🤖 .ecchi
+┊🤖 .furro
+┊🤖 .lesbianas
+┊🤖 .nsfwloli
+┊🤖 .panties
+┊🤖 .pene
+┊🤖 .porno
+┊🤖 .rule34 búsqueda
+┊🤖 .pechos
+┊🤖 .tetas
+┊🤖 .trapito
+┊🤖 .xnxxdl url
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🎮 ＪＵＥＧＯＳ 🎮
+┊🤖 .apostar cantidad
+┊🤖 .slot apuesta
+┊🤖 .claim
+┊🤖 .crimen
+┊🤖 .dardulces @user cantidad
+┊🤖 .dulces
+┊🤖 .minar
+┊🤖 .work
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  🧾 ＲＥＧＩＳＴＲＯＳ 🧾
+┊🤖 .perfil @user
+┊🤖 .sn
+┊🤖 .reg nombre.edad
+┊🤖 .mysn2
+┊🤖 .unreg ° serial
+╰┈┈┈┈┈┈┈┈┈⊰
+
+╭┈┈⊰  main
+┊🤖 .menu
+┊🤖 .owner
+╰┈┈┈┈┈┈┈┈┈⊰
+`
+
+  await conn.sendMessage(m.chat, { image: { url: img }, caption: menu }, { quoted: global.fkontak })
 }
 
-handler.command = ['help', 'menu']
+handler.help = ['menu']
+handler.tags = ['main']
+handler.command = ['menu']
+
 export default handler
